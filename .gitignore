@@ -1,0 +1,7 @@
+# Eclipse project files
+.buildpath
+.project
+.settings
+
+# "Vendor" folder
+use/*
