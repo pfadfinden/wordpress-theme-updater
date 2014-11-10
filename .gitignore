@@ -5,3 +5,6 @@
 
 # "Vendor" folder
 use/*
+
+# Derived files
+pfadfinden-bootstrap.zip
