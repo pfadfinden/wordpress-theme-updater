@@ -33,8 +33,8 @@ function trigger_pfadfinden_bootstrap_error( $message, $type )
 }
 
 
-// Check for suitable environment
-if ( defined( 'PHP_VERSION_ID' ) && PHP_VERSION_ID >= 50400 ) {
+// FIXME: Check for suitable environment
+if ( defined( 'PHP_VERSION_ID' ) && PHP_VERSION_ID >= 50300 ) {
 	if ( ! class_exists( 'Shy\WordPress\Plugin' ) ) {
 		// If the required classes aren’t already used by another Plugin, register the autoloader
 		require_once __DIR__ . '/use/shy-wordpress/autoloader.php';
@@ -47,8 +47,7 @@ if ( defined( 'PHP_VERSION_ID' ) && PHP_VERSION_ID >= 50400 ) {
 }
 
 
-// FIXME: Display error message
-return;
+// Display error message
 trigger_pfadfinden_bootstrap_error(
 	'You need at least PHP 5.4 to use Pfadfinden Bootstrap.',
 	E_USER_ERROR

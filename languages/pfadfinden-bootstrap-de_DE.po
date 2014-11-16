@@ -1,0 +1,32 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Pfadfinden Bootstrap\n"
+"POT-Creation-Date: 2014-11-16 08:54+0100\n"
+"PO-Revision-Date: 2014-11-16 08:55+0100\n"
+"Last-Translator: Philipp Cordes <philipp.cordes@pfadfinden.de>\n"
+"Language-Team: \n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.6.10\n"
+"X-Poedit-Basepath: ..\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-SearchPath-0: src\\Pfadfinden\\WordPress\\Bootstrap\n"
+
+#: src\Pfadfinden\WordPress\Bootstrap/BootstrapPlugin.php:68
+msgid "Pfadfinden Bootstrap Settings"
+msgstr "Pfadfinden Bootstrap-Einstellungen"
+
+#: src\Pfadfinden\WordPress\Bootstrap/BootstrapPlugin.php:69
+msgid "Pfadfinden Bootstrap"
+msgstr "Pfadfinden Bootstrap"
+
+#: src\Pfadfinden\WordPress\Bootstrap/BootstrapPlugin.php:112
+msgid "Activated Features"
+msgstr "Aktivierte Funktionen"
+
+#: src\Pfadfinden\WordPress\Bootstrap/BootstrapPlugin.php:119
+msgid "API Key"
+msgstr "API-Schlüssel"
