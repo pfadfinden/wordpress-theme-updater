@@ -1,6 +1,6 @@
 <?php
 
-namespace Pfadfinden\WordPress\Bootstrap;
+namespace Pfadfinden\WordPress;
 
 use Shy\WordPress\Plugin;
 use Shy\WordPress\HookListTrait;
@@ -8,15 +8,11 @@ use Shy\WordPress\HookListTrait;
 
 
 /**
- * 
+ * A plugin that hooks the Pfadfinden theme repository into the Theme Updater.
  */
-class BootstrapPlugin extends Plugin
+class ThemeUpdaterPlugin extends Plugin
 {
-	//use HookListTrait;
-	private function addHookMethod( $hook, $method, $priority = 10, $arguments = 99 )
-	{
-		add_action( $hook, array( $this, $method ), $priority, $arguments );
-	}
+	use HookListTrait;
 
 
 	public function __construct()
@@ -45,13 +41,13 @@ class BootstrapPlugin extends Plugin
 	 */
 	public function filterPluginActions( array $actions, $plugin_file, $plugin_data, $context )
 	{
-		if ( substr( $plugin_file, -24 ) !== 'pfadfinden-bootstrap.php' ) {
+		if ( substr( $plugin_file, -28 ) !== 'pfadfinden-theme-updater.php' ) {
 			return $actions;
 		}
 
 		return array(
 			'settings' => sprintf(
-				'<a href="options-general.php?page=pfadfinden-bootstrap">%s</a>',
+				'<a href="options-general.php?page=pfadfinden-theme-updater">%s</a>',
 				esc_html__( 'Settings' )
 			),
 		) + $actions;
@@ -108,13 +104,6 @@ class BootstrapPlugin extends Plugin
 			$this->getNamespace()
 		);
 		add_settings_field(
-			$this->getNamespace() . '-features',
-			__( 'Activated Features', 'pfadfinden-bootstrap' ),
-			array( $this, 'renderFeatureCheckboxes' ),
-			$this->getNamespace(),
-			$section
-		);
-		add_settings_field(
 			$this->getNamespace() . '-key',
 			__( 'API Key', 'pfadfinden-bootstrap' ),
 			array( $this, 'renderKeyField' ),
@@ -127,11 +116,6 @@ class BootstrapPlugin extends Plugin
 
 		register_setting(
 			'pfadfinden-settings-group',
-			$this->getNamespace() . '-features',
-			array( $this, 'sanitizeOptionFeatures' )
-		);
-		register_setting(
-			'pfadfinden-settings-group',
 			$this->getNamespace() . '-key',
 			array( $this, 'sanitizeOptionKey' )
 		);
@@ -141,36 +125,11 @@ class BootstrapPlugin extends Plugin
 	{
 	}
 
-	public function renderFeatureCheckboxes()
-	{
-		$active = get_option( $this->getNamespace() . '-features', array() );
-
-		foreach ( $this->features as $key => $feature ) {
-			printf(
-				'<p><label><input type="checkbox" name="%s[]" value="%s"%s /> %s</label></p>',
-				esc_attr( $this->getNamespace() . '-features' ),
-				esc_attr( $key ),
-				in_array( $key, $active ) ? ' checked="checked"' : '',
-				esc_html( $feature )
-			);
-		}
-	}
-
 	/**
-	 * Remove all non-existant features slugs from the input array.
+	 * Output text field for the API key.
 	 * 
-	 * @param array $input
-	 * @return array
+	 * @return void
 	 */
-	public function sanitizeOptionFeatures( $input )
-	{
-		if ( ! is_array( $input ) ) {
-			return array();
-		}
-
-		return array_intersect( $input, array_keys( $this->features ) );
-	}
-
 	public function renderKeyField()
 	{
 		$key = get_option( $this->getNamespace() . '-key', '' );
@@ -183,6 +142,10 @@ class BootstrapPlugin extends Plugin
 		);
 	}
 
+	/**
+	 * @param string $input
+	 * @return string
+	 */
 	public function sanitizeOptionKey( $input )
 	{
 		return $input;

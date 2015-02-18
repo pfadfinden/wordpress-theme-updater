@@ -1,16 +1,15 @@
 <?php
 
-namespace Pfadfinden\WordPress\Bootstrap;
+namespace Pfadfinden\WordPress;
 
 use Shy\WordPress\Feature;
 use Shy\WordPress\Hook;
-use Shy\WordPress\PluginOption;
 
 
 
-class ThemeInstallerFeature extends Feature
+class ThemeRepository extends Feature
 {
-	const THEME_REPOSITORY = 'http://lab.hanseaten-bremen.de/themes/';
+	const URL = 'http://lab.hanseaten-bremen.de/themes/';
 
 	const ACTION_QUERY_THEMES      = 'query_themes';
 	const ACTION_FEATURE_LIST      = 'feature_list';
@@ -37,7 +36,7 @@ class ThemeInstallerFeature extends Feature
 	{
 		$params['action'] = $action;
 
-		$response = wp_remote_get( self::THEME_REPOSITORY . 'api/?key=' . $this->key, array(
+		$response = wp_remote_get( self::URL . 'api/?key=' . $this->key, array(
 			'body' => json_encode( $params ),
 		) );
 
@@ -93,13 +92,13 @@ class ThemeInstallerFeature extends Feature
 				'slug'           => 'bdp-reloaded',
 				'version'        => '0.1',
 				'author'         => 'corphi',
-				'preview_url'    => self::THEME_REPOSITORY . 'bdp-reloaded/preview/',
-				'screenshot_url' => self::THEME_REPOSITORY . 'bdp-reloaded/screenshot.png',
+				'preview_url'    => self::URL . 'bdp-reloaded/preview/',
+				'screenshot_url' => self::URL . 'bdp-reloaded/screenshot.png',
 				'rating'         => 50.0 ,
 				'num_ratings'    => 1,
 				'downloaded'     => 0,
 				'last_updated'   => '2014-07-14',
-				'homepage'       => self::THEME_REPOSITORY . 'bdp-reloaded/',
+				'homepage'       => self::URL . 'bdp-reloaded/',
 				'description'    => 'The first incarnation of a planned redesign of pfadfinden.de. Now available for every BdP group. Base design by Philipp Steinmetzger, improved and made into a theme by Philipp Cordes (PC)',
 				'tags'           => array(
 					
@@ -110,13 +109,13 @@ class ThemeInstallerFeature extends Feature
 				'slug'           => 'buena',
 				'version'        => '0.1',
 				'author'         => 'corphi',
-				'preview_url'    => self::THEME_REPOSITORY . 'buena/preview/',
-				'screenshot_url' => self::THEME_REPOSITORY . 'buena/screenshot.png',
+				'preview_url'    => self::URL . 'buena/preview/',
+				'screenshot_url' => self::URL . 'buena/screenshot.png',
 				'rating'         => 50.0 ,
 				'num_ratings'    => 1,
 				'downloaded'     => 0,
 				'last_updated'   => '2014-10-18',
-				'homepage'       => self::THEME_REPOSITORY . 'buena/',
+				'homepage'       => self::URL . 'buena/',
 				'description'    => 'The new look of pfadfinden.de.',
 				'tags'           => array(
 					
@@ -216,13 +215,13 @@ class ThemeInstallerFeature extends Feature
 				'description' => '',
 			),
 			'description'    => '', // when having sections: empty string
-			'download_link'  => self::THEME_REPOSITORY . 'bdp-reloaded/download/?key=' . $this->key,
+			'download_link'  => self::URL . 'bdp-reloaded/download/?key=' . $this->key,
 			'tags'           => array(
 				'tag' => 'tag',
 			),
 		);
 
-		$response = wp_remote_get( self::THEME_REPOSITORY . 'api/?key=' . $this->key, array(
+		$response = wp_remote_get( self::URL . 'api/?key=' . $this->key, array(
 			'body' => json_encode( array(
 				'action' => self::ACTION_THEME_INFORMATION,
 				'slug'   => $slug,
@@ -249,8 +248,8 @@ class ThemeInstallerFeature extends Feature
 			'bdp-reloaded' => array(
 				'theme'       => 'bdp-reloaded',
 				'new_version' => '1.0',
-				'url'         => self::THEME_REPOSITORY . 'bdp-reloaded/',
-				'package'     => self::THEME_REPOSITORY . 'bdp-reloaded/download/?key=' . $this->key,
+				'url'         => self::URL . 'bdp-reloaded/',
+				'package'     => self::URL . 'bdp-reloaded/download/?key=' . $this->key,
 			),
 		);
 	}
@@ -272,25 +271,11 @@ class ThemeInstallerFeature extends Feature
 			'themes_api_result'     => 'filterApiResult',
 
 //			'theme_install_actions' => 'filterInstallActions',
-			'admin_init'            => 'initAdministration',
 		) as $hook => $method ) {
 			$this->addHookMethod( $hook, $method );
 		}
 
 		$this->addHookMethod( 'wp_update_themes', 'injectUpdates', 20 );
-		//$this->addHookMethod( '', '' );
-
-		$key = new PluginOption( $plugin, 'api_key' );
-	}
-
-
-	public function initAdministration()
-	{
-		add_settings_section( 'section_id', 'Section Title', 'callback', 'setting_page_id' );
-
-		add_settings_field( 'setting_id', 'Setting Name', 'callback', 'setting_page_id', 'section_id' );
-
-		register_setting( 'setting_page_id', 'setting_id' );
 	}
 
 
