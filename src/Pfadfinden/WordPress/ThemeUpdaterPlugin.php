@@ -15,144 +15,120 @@ class ThemeUpdaterPlugin extends Plugin
 	use HookListTrait;
 
 
+	/**
+	 * @var ThemeUpdaterSettings
+	 */
+	protected $settings;
+
+	/**
+	 * @var ThemeRepository
+	 */
+	protected $repository;
+
+
 	public function __construct()
 	{
-		$this->features = array(
-			'html5'     => 'Html5Feature',//new Html5Feature(),
-			'installer' => 'ThemeInstallerFeature',//new ThemeInstallerFeature(),
-		);
+		$this->settings   = new ThemeUpdaterSettings();
+		$this->repository = new ThemeRepository( $this->settings );
 
-		//parent::__construct();
 
-		$this->addHookMethod( 'admin_menu', 'registerAdminMenu' );
-		$this->addHookMethod( 'admin_init', 'registerSettings' );
-		$this->addHookMethod( 'plugin_action_links', 'filterPluginActions' );
+//		$this->addHookMethod( 'themes_api_args',   'filterApiArgs' );
+		$this->addHookMethod( 'themes_api',        'filterApiCall' );
+		$this->addHookMethod( 'themes_api_result', 'filterApiResult' );
+
+//		$this->addHookMethod( 'theme_install_actions', 'filterInstallActions' );
+
+		$this->addHookMethod( 'wp_update_themes', 'injectUpdates', 20 );
 	}
 
 
 	/**
-	 * Add our settings entry to the plugin actions.
+	 * Filter arguments passed a Theme API call.
 	 * 
-	 * @param array<string> $actions
-	 * @param string        $plugin_file
-	 * @param array         $plugin_data
-	 * @param string        $context
+	 * Currently unused.
+	 * 
+	 * @param object $args
+	 * @param string $action 'theme_information', 'feature_list', 'query_themes'
+	 * @return object
+	 */
+	public function filterApiArgs( $args, $action )
+	{
+		return $args;
+	}
+
+	/**
+	 * Replace a Theme API call.
+	 * 
+	 * Actually, only the call for theme information in special cases.
+	 * 
+	 * @param \WP_Error|object|false $result
+	 * @param string $action 'theme_information', 'feature_list' or 'query_themes'
+	 * @param object $args
+	 * @return \WP_Error|object|array|false
+	 */
+	public function filterApiCall( $result, $action, $args )
+	{
+		// Handle managed theme information calls
+		if ( self::ACTION_THEME_INFORMATION === $action
+			&& $this->repository->isKnownTheme( $args->slug )
+		) {
+			return $this->repository->queryThemeInformation( $args );
+		}
+	
+		return $result;
+	}
+
+	/**
+	 * Filter a Theme API result.
+	 * 
+	 * Inject our themes at appropriate places.
+	 * 
+	 * @param object|\WP_Error $result
+	 * @param string $action 'theme_information', 'feature_list', 'query_themes'
+	 * @param object|array $args An array after using built-in API, object otherwise.
+	 * @return object
+	 */
+	public function filterApiResult( $result, $action, $args )
+	{
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		if ( is_array( $args ) ) {
+			// Workaround for https://core.trac.wordpress.org/ticket/29079
+			$args = unserialize( $args['body']['request'] ); // Unpack original args
+		}
+
+		if ( self::ACTION_QUERY_THEMES === $action ) {
+			if ( ! $result || ! is_object( $result ) ) {
+				// Construct empty result
+				// FIXME: Maybe unneccessary
+				$result = (object) array(
+					'info'   => array(
+						'page'    => 1,
+						'pages'   => 0,
+						'results' => false,
+					),
+					'themes' => array(),
+				);
+			}
+
+			$this->spliceThemes( $result, $this->queryThemes( $args ) );
+		}
+
+		return $result;
+	}
+
+
+	/**
+	 * @param array<string> $actions Array of HTML tags, primarily &lt;a&gt;
+	 * @param \WP_Theme|object $theme
 	 * @return array<string>
 	 */
-	public function filterPluginActions( array $actions, $plugin_file, $plugin_data, $context )
+	public function filterInstallActions( array $actions, $theme )
 	{
-		if ( substr( $plugin_file, -28 ) !== 'pfadfinden-theme-updater.php' ) {
-			return $actions;
-		}
-
-		return array(
-			'settings' => sprintf(
-				'<a href="options-general.php?page=pfadfinden-theme-updater">%s</a>',
-				esc_html__( 'Settings' )
-			),
-		) + $actions;
-	}
-
-	/**
-	 * Register our options page.
-	 * 
-	 * @return void
-	 */
-	public function registerAdminMenu()
-	{
-		add_options_page(
-			__( 'Pfadfinden Bootstrap Settings', 'pfadfinden-bootstrap' ),
-			__( 'Pfadfinden Bootstrap', 'pfadfinden-bootstrap' ),
-			'manage_options',
-			$this->getNamespace(),
-			array( $this, 'renderOptionsPage' )
-		);
-	}
-
-	/**
-	 * Render our options page.
-	 */
-	public function renderOptionsPage()
-	{
-		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
-		}
-
-		?>
-		<div class="wrap">
-			<h2><?php esc_html_e( 'Pfadfinden Bootstrap Settings', 'pfadfinden-bootstrap' ); ?></h2>
-			<form action="options.php" method="post">
-				<?php settings_fields( 'pfadfinden-settings-group' ); ?>
-				<?php do_settings_sections( $this->getNamespace() ); ?>
-				<?php submit_button(); ?>
-			</form>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Register our settings.
-	 */
-	public function registerSettings()
-	{
-		$section = $this->getNamespace() . '-section-general';
-
-		add_settings_section(
-			$section,
-			'',
-			array( $this, 'renderSectionTeaser' ),
-			$this->getNamespace()
-		);
-		add_settings_field(
-			$this->getNamespace() . '-key',
-			__( 'API Key', 'pfadfinden-bootstrap' ),
-			array( $this, 'renderKeyField' ),
-			$this->getNamespace(),
-			$section,
-			array(
-				'label_for' => $this->getNamespace() . '-key'
-			)
-		);
-
-		register_setting(
-			'pfadfinden-settings-group',
-			$this->getNamespace() . '-key',
-			array( $this, 'sanitizeOptionKey' )
-		);
-	}
-
-	public function renderSectionTeaser()
-	{
-	}
-
-	/**
-	 * Output text field for the API key.
-	 * 
-	 * @return void
-	 */
-	public function renderKeyField()
-	{
-		$key = get_option( $this->getNamespace() . '-key', '' );
-
-		printf(
-			'<input type="text" id="%s" class="regular-text" name="%s" value="%s" />',
-			esc_attr( $this->getNamespace() . '-key' ),
-			esc_attr( $this->getNamespace() . '-key' ),
-			esc_attr( $key )
-		);
-	}
-
-	/**
-	 * @param string $input
-	 * @return string
-	 */
-	public function sanitizeOptionKey( $input )
-	{
-		return $input;
-	}
-
-	public function getNamespace()
-	{
-		return 'pfadfinden-bootstrap';
+		var_dump( $theme );
+		die( 'Ende' );
+		return $actions;
 	}
 }

@@ -17,7 +17,7 @@ if ( ! function_exists( 'trigger_pfadfinden_plugin_error' ) ) {
 	/**
 	 * Show an error message.
 	 * 
-	 * @see http://www.squarepenguin.com/wordpress/?p=6
+	 * @see http://www.squarepenguin.com/wordpress/?p=6 Inspiration
 	 * 
 	 * @param string  $message
 	 * @param integer $type
@@ -29,7 +29,7 @@ if ( ! function_exists( 'trigger_pfadfinden_plugin_error' ) ) {
 			echo $message;
 			return true;
 		}
-	
+
 		return trigger_error( $message, $type );
 	}
 }
@@ -50,7 +50,7 @@ if ( defined( 'PHP_VERSION_ID' ) && PHP_VERSION_ID >= 50400 ) {
 
 
 // Display error message
-trigger_pfadfinden_bootstrap_error(
-	'You need at least PHP 5.4 to use Pfadfinden Theme Updater.',
+trigger_pfadfinden_plugin_error(
+	__( 'You need at least PHP 5.4 to use Pfadfinden Theme Updater.', 'pfadfinden-theme-updater' ),
 	E_USER_ERROR
 );
