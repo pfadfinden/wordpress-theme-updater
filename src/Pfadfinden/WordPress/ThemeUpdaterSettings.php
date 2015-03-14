@@ -8,14 +8,27 @@ use Shy\WordPress\SettingsPage;
 
 /**
  * The code managing the plugin settings.
+ * 
+ * @author Philipp Cordes <philipp.cordes@pfadfinden.de>
  */
 class ThemeUpdaterSettings extends SettingsPage
 {
+	/**
+	 * @return string
+	 */
+	protected function getPluginBasename()
+	{
+		return plugin_basename(
+			preg_replace( '/src\\/.*?$/', 'pfadfinden-theme-updater.php', __DIR__ )
+		);
+	}
+
+
 	public function __construct()
 	{
 		parent::__construct( 'pfadfinden-theme-updater' );
 
-		add_filter( 'plugin_action_links', 'filterPluginActions', 10, 4 );
+		$this->addHookMethod( 'plugin_action_links', 'filterPluginActions' );
 	}
 
 
@@ -30,7 +43,7 @@ class ThemeUpdaterSettings extends SettingsPage
 	 */
 	public function filterPluginActions( array $actions, $plugin_file, array $plugin_data, $context )
 	{
-		if ( substr( $plugin_file, -28 ) !== 'pfadfinden-theme-updater.php' ) {
+		if ( $this->getPluginBasename() !== $plugin_file ) {
 			return $actions;
 		}
 
@@ -44,6 +57,11 @@ class ThemeUpdaterSettings extends SettingsPage
 	}
 
 
+	protected function getParentSlug()
+	{
+		return 'themes.php';
+	}
+
 	protected function getPageTitle()
 	{
 		return __( 'Pfadfinden Theme Updater Settings', 'pfadfinden-theme-updater' );
@@ -51,7 +69,7 @@ class ThemeUpdaterSettings extends SettingsPage
 
 	protected function getMenuTitle()
 	{
-		return __( 'Pfadfinden Theme Updater', 'pfadfinden-theme-updater' );
+		return __( 'Pfadfinden Updater', 'pfadfinden-theme-updater' );
 	}
 
 
@@ -76,7 +94,7 @@ class ThemeUpdaterSettings extends SettingsPage
 	public function sanitizeOptions( array $options )
 	{
 		if ( ! isset( $options['key'] ) ) {
-			$options['key'] = $this->getDefaults()['keep-settings'];
+			$options['key'] = $this->getDefaults()['key'];
 		} else {
 			$key = preg_replace( '[^A-Za-z0-9]+', '', $options['key'] );
 			$keylen = strlen( $key );

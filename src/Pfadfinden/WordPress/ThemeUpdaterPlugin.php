@@ -3,16 +3,19 @@
 namespace Pfadfinden\WordPress;
 
 use Shy\WordPress\Plugin;
-use Shy\WordPress\HookListTrait;
 
 
 
 /**
  * A plugin that hooks the Pfadfinden theme repository into the Theme Updater.
+ * 
+ * @author Philipp Cordes <philipp.cordes@pfadfinden.de>
  */
 class ThemeUpdaterPlugin extends Plugin
 {
-	use HookListTrait;
+	const ACTION_QUERY_THEMES      = 'query_themes';
+	const ACTION_FEATURE_LIST      = 'feature_list';
+	const ACTION_THEME_INFORMATION = 'theme_information';
 
 
 	/**
@@ -68,13 +71,17 @@ class ThemeUpdaterPlugin extends Plugin
 	 */
 	public function filterApiCall( $result, $action, $args )
 	{
-		// Handle managed theme information calls
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
 		if ( self::ACTION_THEME_INFORMATION === $action
 			&& $this->repository->isKnownTheme( $args->slug )
 		) {
+			// Only handle our theme information calls
 			return $this->repository->queryThemeInformation( $args );
 		}
-	
+
 		return $result;
 	}
 
@@ -119,16 +126,50 @@ class ThemeUpdaterPlugin extends Plugin
 		return $result;
 	}
 
+	/**
+	 * Splice additional themes into an existing Theme API result.
+	 *
+	 * Put them in front.
+	 *
+	 * @param object $result {
+	 *    @type object $info {
+	 *       @type integer|false  $results have browser count if false
+	 *       @type integer|string $page
+	 *       @type integer        $pages may be 0
+	 *    }
+	 *    @type array  $themes
+	 * }
+	 * @param array $themes
+	 * @return void
+	 */
+	public function spliceThemes( $result, array $themes )
+	{
+		$add = function ( $number, $increment ) {
+			return is_integer( $number ) ? $number + $increment : $number;
+		};
+
+		if ( is_array( $result->info ) ) {
+			$result->info['results'] = $add( $result->info['results'], count( $themes ) );
+		} elseif ( is_object( $result->info ) ) {
+			// Seemed to be an object once…
+			$result->info->results   = $add( $result->info->results,   count( $themes ) );
+		}
+
+		array_splice( $result->themes, 0, 0, $themes );
+	}
+
 
 	/**
 	 * @param array<string> $actions Array of HTML tags, primarily &lt;a&gt;
-	 * @param \WP_Theme|object $theme
+	 * @param object $theme
 	 * @return array<string>
 	 */
 	public function filterInstallActions( array $actions, $theme )
 	{
-		var_dump( $theme );
-		die( 'Ende' );
+		if ( ! $this->repository->isKnownTheme( $theme->slug ) ) {
+			return $actions;
+		}
+
 		return $actions;
 	}
 }

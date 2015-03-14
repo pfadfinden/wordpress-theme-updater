@@ -2,17 +2,16 @@
 
 namespace Pfadfinden\WordPress;
 
-use Shy\WordPress\Hook;
 
 
-
+/**
+ * A theme repository.
+ * 
+ * @author Philipp Cordes <philipp.cordes@pfadfinden.de>
+ */
 class ThemeRepository
 {
 	const URL = 'http://lab.hanseaten-bremen.de/themes/';
-
-	const ACTION_QUERY_THEMES      = 'query_themes';
-	const ACTION_FEATURE_LIST      = 'feature_list';
-	const ACTION_THEME_INFORMATION = 'theme_information';
 
 
 	/**
@@ -50,6 +49,22 @@ class ThemeRepository
 		) );
 
 		return json_decode( $response['body'], true );
+	}
+
+
+	public function searchByTerm( $term, $per_page )
+	{
+		
+	}
+
+	public function searchByTag( $tag, $per_page )
+	{
+		
+	}
+
+	public function browse( $category, $per_page )
+	{
+		
 	}
 
 
@@ -134,39 +149,6 @@ class ThemeRepository
 	}
 
 	/**
-	 * Splice additional themes into an existing Theme API result.
-	 * 
-	 * Put them in front.
-	 * 
-	 * @param object $result {
-	 *    @type object $info {
-	 *       @type integer|false  $results have browser count if false
-	 *       @type integer|string $page
-	 *       @type integer        $pages may be 0
-	 *    }
-	 *    @type array  $themes
-	 * }
-	 * @param array $themes
-	 * @return void
-	 */
-	public function spliceThemes( $result, array $themes )
-	{
-		$add = function ( $number, $increment ) {
-			return is_integer( $number ) ? $number + $increment : $number;
-		};
-
-		if ( is_array( $result->info ) ) {
-			$result->info['results'] = $add( $result->info['results'], count( $themes ) );
-		} elseif ( is_object( $result->info ) ) {
-			// Seemed to be an object once…
-			$result->info->results   = $add( $result->info->results,   count( $themes ) );
-		}
-
-		array_splice( $result->themes, 0, 0, $themes );
-	}
-
-
-	/**
 	 * Query information about a specific theme.
 	 * 
 	 * @param string         $slug   theme slug
@@ -224,18 +206,15 @@ class ThemeRepository
 				'description' => '',
 			),
 			'description'    => '', // when having sections: empty string
-			'download_link'  => self::URL . 'bdp-reloaded/download/?key=' . $this->key,
+			'download_link'  => self::URL . 'bdp-reloaded/download/?key=' . $this->settings['key'],
 			'tags'           => array(
 				'tag' => 'tag',
 			),
 		);
 
-		$response = wp_remote_get( self::URL . 'api/?key=' . $this->key, array(
-			'body' => json_encode( array(
-				'action' => self::ACTION_THEME_INFORMATION,
-				'slug'   => $slug,
-				'fields' => $fields,
-			) ),
+		$this->doApiQuery( self::ACTION_THEME_INFORMATION, array(
+			'slug'   => $slug,
+			'fields' => $fields,
 		) );
 
 		$response;
@@ -265,7 +244,7 @@ class ThemeRepository
 
 
 	/**
-	 * @var \Pfadfinden\WordPress\ThemeUpdaterSettings
+	 * @var ThemeUpdaterSettings
 	 */
 	protected $settings;
 
