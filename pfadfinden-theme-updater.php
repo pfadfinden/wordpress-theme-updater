@@ -39,7 +39,7 @@ if ( ! function_exists( 'trigger_pfadfinden_plugin_error' ) ) {
 if ( defined( 'PHP_VERSION_ID' ) && PHP_VERSION_ID >= 50400 ) {
 	if ( ! class_exists( 'Shy\WordPress\Plugin' ) ) {
 		// If the required classes aren’t already used by another Plugin, register the autoloader
-		require_once __DIR__ . '/use/shy-wordpress/autoloader.php';
+		require_once __DIR__ . '/use/shy-wordpress/src/autoloader.php';
 	}
 
 	// Register our autoloader
