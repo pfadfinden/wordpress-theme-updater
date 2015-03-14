@@ -9,3 +9,6 @@ use/*
 # Derived files
 languages/*.mo
 pfadfinden-theme-updater.zip
+
+# Local PHPUnit configuration
+phpunit.xml
