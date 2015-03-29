@@ -5,12 +5,18 @@
  * Description: Adds the Pfadfinden theme repository to your choice of themes. Requires an API key.
  * Version: 0.1
  * Author: Philipp Cordes
+ * Text Domain: pfadfinden-theme-updater
+ * Domain Path: /languages/
  * License: GPL2 or later
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	die( 'I’m a plugin.' );
 }
+
+
+// Load localized strings.
+load_plugin_textdomain( 'pfadfinden-theme-updater', false, basename( __DIR__ ) . '/languages' );
 
 
 if ( ! function_exists( 'trigger_pfadfinden_plugin_error' ) ) {
