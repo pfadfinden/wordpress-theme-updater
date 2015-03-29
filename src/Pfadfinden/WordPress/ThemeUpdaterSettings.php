@@ -14,13 +14,13 @@ use Shy\WordPress\SettingsPage;
 class ThemeUpdaterSettings extends SettingsPage
 {
 	/**
+	 * Full path of plugin main file.
+	 * 
 	 * @return string
 	 */
-	protected function getPluginBasename()
+	protected function getPluginFilename()
 	{
-		return plugin_basename(
-			preg_replace( '/src\\/.*?$/', 'pfadfinden-theme-updater.php', __DIR__ )
-		);
+		return preg_replace( '/src\\/.*?$/', 'pfadfinden-theme-updater.php', __DIR__ );
 	}
 
 
@@ -43,7 +43,9 @@ class ThemeUpdaterSettings extends SettingsPage
 	 */
 	public function filterPluginActions( array $actions, $plugin_file, array $plugin_data, $context )
 	{
-		if ( $this->getPluginBasename() !== $plugin_file ) {
+		// Dereference possible symlink
+		$plugin_file = realpath( WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . $plugin_file );
+		if ( $this->getPluginFilename() !== $plugin_file ) {
 			return $actions;
 		}
 
@@ -93,10 +95,8 @@ class ThemeUpdaterSettings extends SettingsPage
 
 	public function sanitizeOptions( array $options )
 	{
-		if ( ! isset( $options['key'] ) ) {
-			$options['key'] = $this->getDefaults()['key'];
-		} else {
-			$key = preg_replace( '[^A-Za-z0-9]+', '', $options['key'] );
+		if ( isset( $options['key'] ) ) {
+			$key = preg_replace( '/[^A-Za-z0-9]+/', '', $options['key'] );
 			$keylen = strlen( $key );
 			if ( 0 !== $keylen && 10 !== $keylen ) {
 				$this->addError( 'key', __( 'The API key consists of 10 characters. ', 'pfadfinden-theme-updater' ) );
@@ -104,11 +104,7 @@ class ThemeUpdaterSettings extends SettingsPage
 			$options['key'] = $key;
 		}
 
-		if ( ! isset( $options['keep-settings'] ) ) {
-			$options['keep-settings'] = $this->getDefaults()['keep-settings'];
-		}
-
-		return $options;
+		return $options + $this->getDefaults();
 	}
 
 	public function getDefaults()
