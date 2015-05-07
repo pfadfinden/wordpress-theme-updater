@@ -51,8 +51,8 @@ class ThemeUpdaterSettings extends SettingsPage
 
 		return array(
 			'settings' => sprintf(
-				'<a href="options-general.php?page=%s">%s</a>',
-				esc_attr( $this->slug ),
+				'<a href="themes.php?page=%s">%s</a>',
+				esc_attr( urlencode( $this->slug ) ),
 				esc_html__( 'Settings' )
 			),
 		) + $actions;
