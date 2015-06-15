@@ -4,7 +4,7 @@
  * Try to load a Pfadfinden WordPress class.
  * 
  * @param string $name
- * @return boolean
+ * @return bool
  */
 function pfadfinden_wordpress_autoloader( $name )
 {

@@ -81,7 +81,14 @@ class ThemeUpdaterSettings extends SettingsPage
 
 		$this->addTextField(
 			'key',
-			__( 'API Key', 'pfadfinden-theme-updater' )
+			__( 'API Key', 'pfadfinden-theme-updater' ),
+			[ 'attr' => [
+				'minlength' => '10',
+				'maxlength' => '10',
+				'pattern'   => '^[A-Za-z0-9]{10}$',
+				'title'     => __( 'An API key consists of 10 alphanumeric characters.', 'pfadfinden-theme-updater' ),
+			] ],
+			[ $this, 'renderApiKeyField' ]
 		);
 
 		$this->addCheckboxField(
@@ -93,13 +100,20 @@ class ThemeUpdaterSettings extends SettingsPage
 		parent::registerSettings();
 	}
 
+	public function renderApiKeyField( array $args )
+	{
+		$this->renderTextField( $args );
+
+		echo '<p class="description">' . __( 'Just testing? Try APITESTKEY.', 'pfadfinden-theme-updater' ) . '</p>';
+	}
+
 	public function sanitizeOptions( array $options )
 	{
 		if ( isset( $options['key'] ) ) {
 			$key = preg_replace( '/[^A-Za-z0-9]+/', '', $options['key'] );
 			$keylen = strlen( $key );
 			if ( 0 !== $keylen && 10 !== $keylen ) {
-				$this->addError( 'key', __( 'The API key consists of 10 characters. ', 'pfadfinden-theme-updater' ) );
+				$this->addError( 'key', __( 'An API key consists of 10 alphanumeric characters.', 'pfadfinden-theme-updater' ) );
 			}
 			$options['key'] = $key;
 		}
@@ -109,9 +123,9 @@ class ThemeUpdaterSettings extends SettingsPage
 
 	public function getDefaults()
 	{
-		return array(
+		return [
 			'key'           => '',
 			'keep-settings' => false,
-		);
+		];
 	}
 }

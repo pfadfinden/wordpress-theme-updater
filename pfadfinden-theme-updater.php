@@ -7,7 +7,7 @@
  * Author: Philipp Cordes
  * Text Domain: pfadfinden-theme-updater
  * Domain Path: /languages/
- * License: GPL2 or later
+ * License: GPLv2 or later
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

@@ -7,240 +7,23 @@ namespace Pfadfinden\WordPress;
 /**
  * A theme repository.
  * 
+ * It’s a simple wrapper around a web service mimicking the wordpress.org theme repository.
+ * 
  * @author Philipp Cordes <philipp.cordes@pfadfinden.de>
  */
 class ThemeRepository
 {
-	const URL = 'http://lab.hanseaten-bremen.de/themes/';
+	const URL = 'http://lab.hanseaten-bremen.de/themes/api/';
 
 
 	/**
 	 * Slugs of managed themes.
 	 * 
+	 * FIXME: Move to a transient.
+	 * 
 	 * @var array<string>
 	 */
-	private $known_themes = array( 'bdp-reloaded', 'buena' );
-
-
-	/**
-	 * Whether theme information is available.
-	 * 
-	 * @param string $theme_slug
-	 * @return boolean
-	 */
-	public function isKnownTheme( $theme_slug )
-	{
-		return in_array( $theme_slug, $this->known_themes, true );
-	}
-
-
-	/**
-	 * 
-	 * @param string $action One of the action constants
-	 * @param array  $params
-	 * @return array
-	 */
-	protected function doApiQuery( $action, array $params = array() )
-	{
-		$params['action'] = $action;
-
-		$response = wp_remote_get( self::URL . 'api/?key=' . $this->key, array(
-			'body' => json_encode( $params ),
-		) );
-
-		return json_decode( $response['body'], true );
-	}
-
-
-	public function searchByTerm( $term, $per_page )
-	{
-		
-	}
-
-	public function searchByTag( $tag, $per_page )
-	{
-		
-	}
-
-	public function browse( $category, $per_page )
-	{
-		
-	}
-
-
-	/**
-	 * Query managed themes to add.
-	 * 
-	 * Exactly one criterion is present.
-	 * 
-	 * @param object $args {
-	 *    @type integer        $per_page
-	 *    @type array<boolean> $fields   to explicitly include or exclude
-	 *    @type string         $browse   'featured', 'popular' or 'new' if present
-	 *    @type string         $search   search term if present
-	 *    @type array<string>  $tag      list of tag slugs if present, such as 'accessibility-ready'
-	 * }
-	 * @return array<object {
-	 *    @type string  $name
-	 *    @type string  $slug lowercase, hyphenated
-	 *    @type string  $version
-	 *    @type string  $author
-	 *    @type string  $preview_url
-	 *    @type string  $screenshot_url
-	 *    @type float   $rating between 0 and 100
-	 *    @type integer $num_ratings
-	 *    @type integer $downloaded
-	 *    @type string  $last_updated Y-m-d
-	 *    @type string  $homepage
-	 *    @type string  $description
-	 *    @type array   $tags
-	 * }>
-	 */
-	protected function queryThemes( $args )
-	{
-		if ( ! isset( $args->browse ) || 'featured' !== $args->browse ) {
-			return array();
-		}
-
-		// API defaults
-		array('tested' => false, 'downloadlink' => false,);
-
-		// WordPress default fields
-		array('description' => true, 'sections' => false, 'tested' => true, 'requires' => true,
-		'rating' => true, 'downloaded' => true, 'downloadlink' => true, 'last_updated' => true,
-		'homepage' => true, 'tags' => true, 'num_ratings' => true);
-
-		return array(
-			(object) array(
-				'name'           => 'Pfadfinden reloaded',
-				'slug'           => 'bdp-reloaded',
-				'version'        => '0.1',
-				'author'         => 'corphi',
-				'preview_url'    => self::URL . 'bdp-reloaded/preview/',
-				'screenshot_url' => self::URL . 'bdp-reloaded/screenshot.png',
-				'rating'         => 50.0 ,
-				'num_ratings'    => 1,
-				'downloaded'     => 0,
-				'last_updated'   => '2014-07-14',
-				'homepage'       => self::URL . 'bdp-reloaded/',
-				'description'    => 'The first incarnation of a planned redesign of pfadfinden.de. Now available for every BdP group. Base design by Philipp Steinmetzger, improved and made into a theme by Philipp Cordes (PC)',
-				'tags'           => array(
-					
-				),
-			),
-			(object) array(
-				'name'           => 'Buena',
-				'slug'           => 'buena',
-				'version'        => '0.1',
-				'author'         => 'corphi',
-				'preview_url'    => self::URL . 'buena/preview/',
-				'screenshot_url' => self::URL . 'buena/screenshot.png',
-				'rating'         => 50.0 ,
-				'num_ratings'    => 1,
-				'downloaded'     => 0,
-				'last_updated'   => '2014-10-18',
-				'homepage'       => self::URL . 'buena/',
-				'description'    => 'The new look of pfadfinden.de.',
-				'tags'           => array(
-					
-				),
-			),
-		);
-	}
-
-	/**
-	 * Query information about a specific theme.
-	 * 
-	 * @param string         $slug   theme slug
-	 * @param array<boolean> $fields to explicitly include or exclude
-	 * @return object {
-	 *    @type string  $name
-	 *    @type string  $slug
-	 *    @type string  $version
-	 *    @type string  $author
-	 *    @type string  $preview_url
-	 *    @type string  $screenshot_url
-	 *    @type float   $rating between 0.0 and 100.0
-	 *    @type integer $num_ratings
-	 *    @type integer $downloaded
-	 *    @type string  $last_updated
-	 *    @type string  $homepage
-	 *    @type array   $sections {
-	 *       @type string $description
-	 *    }
-	 *    @type string  $description empty string when having sections
-	 *    @type string  $download_link
-	 *    @type array<string> $tags keys are tag slugs, values also lowercase. strange.
-	 * }
-	 */
-	protected function queryThemeInformation( $slug = '', array $fields = array() )
-	{
-		// Often $args->fields['sections'] === false, $args->fields['tags'] === false.
-		/*
-		 *   object(stdClass)[59]
-		 *     public 'name'           => string 'Magazine Basic'
-		 *     public 'slug'           => string 'magazine-basic'
-		 *     public 'version'        => string '1.1'
-		 *     public 'author'         => string 'tinkerpriest'
-		 *     public 'preview_url'    => string 'http://wp-themes.com/?magazine-basic'
-		 *     public 'screenshot_url' => string 'http://wp-themes.com/wp-content/themes/magazine-basic/screenshot.png'
-		 *     public 'rating'         => float 80
-		 *     public 'num_ratings'    => int 1
-		 *     public 'homepage'       => string 'http://wordpress.org/themes/magazine-basic'
-		 *     public 'description'    => string 'A basic magazine style layout with a fully customizable layout through a backend interface. Designed by <a href="http://bavotasan.com">c.bavota</a> of <a href="http://tinkerpriestmedia.com">Tinker Priest Media</a>.'
-		 *     public 'download_link'  => string 'http://wordpress.org/themes/download/magazine-basic.1.1.zip'
-		 */
-		return (object) array(
-			'name'           => 'Pfadfinden reloaded',
-			'slug'           => $slug,
-			'version'        => '',
-			'author'         => '',
-			'preview_url'    => '',
-			'screenshot_url' => '',
-			'rating'         => 50.0,
-			'num_ratings'    => 1,
-			'downloaded'     => 0,
-			'last_updated'   => '2014-07-14',
-			'homepage'       => '',
-			'sections'       => array( // if not explicitly omitted
-				'description' => '',
-			),
-			'description'    => '', // when having sections: empty string
-			'download_link'  => self::URL . 'bdp-reloaded/download/?key=' . $this->settings['key'],
-			'tags'           => array(
-				'tag' => 'tag',
-			),
-		);
-
-		$this->doApiQuery( self::ACTION_THEME_INFORMATION, array(
-			'slug'   => $slug,
-			'fields' => $fields,
-		) );
-
-		$response;
-	}
-
-	/**
-	 * Query information about updates for installed themes.
-	 * 
-	 * @return array<string, array<string> {
-	 *    @type string $theme
-	 *    @type string $version
-	 *    @type string $url
-	 *    @type string $package
-	 * }>
-	 */
-	protected function queryUpdates()
-	{
-		return array(
-			'bdp-reloaded' => array(
-				'theme'       => 'bdp-reloaded',
-				'new_version' => '1.0',
-				'url'         => self::URL . 'bdp-reloaded/',
-				'package'     => self::URL . 'bdp-reloaded/download/?key=' . $this->key,
-			),
-		);
-	}
+	private $known_themes = [ 'bdp-reloaded', 'bdp-test', 'buena' ];
 
 
 	/**
@@ -256,48 +39,169 @@ class ThemeRepository
 
 
 	/**
-	 * Called to check for updates.
+	 * Whether theme information is available.
 	 * 
-	 * @return void
+	 * @param string $theme_slug
+	 * @return bool
 	 */
-	public function injectUpdates()
+	public function isKnownTheme( $theme_slug )
 	{
-		/**
-		 * @var object $update {
-		 *    @type integer $last_checked timestamp
-		 *    @type array   $checked
-		 *    @type array   $response indexed by theme slug {
-		 *       @type string $url
-		 *       @type string $new_version
-		 *    }
-		 *    @type array   $translations
-		 * }
-		 */
-		$update = get_site_transient( 'update_themes' );
+		return in_array( $theme_slug, $this->known_themes, true );
+	}
 
-		if ( ! $update ) {
-			return;
+
+	/**
+	 * Wrapper around HTTP calls, always returns an array of theme information.
+	 * 
+	 * @param string $action One of the supported actions of the repository
+	 * @param array  $params Parameters for the action
+	 * @param string $locale
+	 * @return array<object>|\WP_Error
+	 */
+	protected function doApiQuery( $action, array $params = [], $locale = '' )
+	{
+		$url_params = [
+			'key'    => $this->settings['key'],
+			'action' => $action,
+		];
+		if ( $params ) {
+			if ( function_exists( 'gzcompress' ) ) {
+				$url_params['gzparams'] = gzcompress( json_encode( $params ), 9 );
+			} else {
+				$url_params['params'] = json_encode( $params );
+			}
 		}
+		$url_params = array_map( 'rawurlencode', $url_params );
 
-		if ( ob_start() ) {
-			var_dump($update);
-			file_put_contents(
-				sprintf( '%s/update-%013.4f.txt', WP_CONTENT_DIR, microtime( true ) - strtotime( '2014-07-17' ) ),
-				ob_get_clean()
+		$url = add_query_arg( $url_params, self::URL );
+		if ( strlen( $url ) > 2000 ) {
+			// Lengths beyond 2000 seem unhealthy.
+			return new \WP_Error(
+				815,
+				__( 'Your theme repository query is too long.', 'pfadfinden-theme-updater' )
 			);
-			ob_end();
-		}
-		return; // FIXME
-
-		$theme_updates = $this->queryUpdates();
-		if ( ! $theme_updates ) {
-			return;
 		}
 
-		foreach ( $theme_updates as $slug => $theme_update ) {
-			// FIXME: Evtl. $update->checked[ $slug ] = $current_version setzen.
-			$update->response[ $slug ] = $theme_update;
+		$headers = [];
+		if ( ! strlen( $locale ) ) {
+			$locale = get_locale();
 		}
-		set_site_transient( 'update_themes', $update );
+		if ( strlen( $locale ) ) {
+			$locale = str_replace( '_', '-', $locale );
+			$headers['Accept-Language'] = "$locale, en; q=0.6, *; q=0.1";
+		}
+
+		// A GET request allows for caching
+		$response = wp_remote_get( $url, [
+			'headers' => $headers,
+		] );
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( isset( $body['type'] ) && 'success' === $body['type'] ) {
+			return array_map( function ( array $theme ) {
+				return (object) $theme;
+			}, $body['themes'] );
+		}
+
+		if ( WP_DEBUG ) {
+			trigger_error( wp_remote_retrieve_body( $response ), E_USER_ERROR );
+		}
+		$error = new \WP_Error(
+			wp_remote_retrieve_response_code( $response ),
+			isset( $body['message'] ) ? $body['message'] : __( 'Unknown theme repository server error, no message attached.', 'pfadfinden-theme-updater' )
+		);
+		if ( isset( $body['exception'] ) ) {
+			$error->add_data( $body['exception'] );
+		}
+
+		return $error;
+	}
+
+
+	/**
+	 * @param array<bool> $fields to explicitly include or exclude
+	 * @param string      $locale
+	 * @return array<object {
+	 *    @type string $name
+	 *    @type string $slug lowercase, hyphenated
+	 *    @type string $version
+	 *    @type string $author
+	 *    @type string $preview_url
+	 *    @type string $screenshot_url
+	 *    @type float  $rating between 0 and 100
+	 *    @type int    $num_ratings
+	 *    @type int    $downloaded
+	 *    @type string $last_updated Y-m-d
+	 *    @type string $homepage
+	 *    @type string $description
+	 *    @type array  $tags
+	 * }>
+	 */
+	public function queryFeaturedThemes( array $fields = [], $locale = '' )
+	{
+		return $this->doApiQuery( 'featured', [ 'fields' => $fields ], $locale );
+	}
+
+	/**
+	 * Query information about a specific theme.
+	 * 
+	 * @param string|array $slugs  theme slug(s)
+	 * @param array<bool>  $fields to explicitly include or exclude
+	 * @param string       $locale
+	 * @return object {
+	 *    @type string $name
+	 *    @type string $slug
+	 *    @type string $version
+	 *    @type string $author
+	 *    @type string $preview_url
+	 *    @type string $screenshot_url
+	 *    @type float  $rating between 0.0 and 100.0
+	 *    @type int    $num_ratings
+	 *    @type int    $downloaded
+	 *    @type string $last_updated
+	 *    @type string $homepage
+	 *    @type array  $sections {
+	 *       @type string $description
+	 *    }
+	 *    @type string $description empty string when having sections
+	 *    @type string $download_link
+	 *    @type array<string> $tags keys are tag slugs, values also lowercase. strange.
+	 * }
+	 */
+	public function queryThemeInformation( $slugs, array $fields = [], $locale = '' )
+	{
+		$themes = $this->doApiQuery( 'information', [
+			'slugs'  => (array) $slugs,
+			'fields' => $fields,
+		], $locale );
+		if ( is_wp_error( $themes ) ) {
+			return $themes;
+		}
+
+		if ( is_string( $slugs ) ) {
+			if ( count( $themes ) !== 1 ) {
+				return new \WP_Error( __( 'Ambiguous result for single theme information call.', 'pfadfinden-theme-updater' ) );
+			}
+
+			return reset( $themes );
+		}
+
+		return $themes;
+	}
+
+	/**
+	 * Query information about updates for installed themes.
+	 * 
+	 * @param array<bool> $fields to explicitly include or exclude
+	 * @param string      $locale
+	 * @return array<object>
+	 */
+	public function queryUpdates( array $fields = [], $locale = '' )
+	{
+		// FIXME: Only include installed themes
+		return $this->queryThemeInformation( $this->known_themes, $fields, $locale );
 	}
 }
