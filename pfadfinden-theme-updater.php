@@ -25,15 +25,19 @@ if ( ! function_exists( 'trigger_pfadfinden_plugin_error' ) ) {
 	 * 
 	 * @see http://www.squarepenguin.com/wordpress/?p=6 Inspiration
 	 * 
-	 * @param string  $message
-	 * @param integer $type
-	 * @return boolean
+	 * @param string $message
+	 * @param int    $type    optional
+	 * @return bool
 	 */
-	function trigger_pfadfinden_plugin_error( $message, $type )
+	function trigger_pfadfinden_plugin_error( $message, $type = 0 )
 	{
 		if ( isset( $_GET['action'] ) && 'error_scrape' === $_GET['action'] ) {
 			echo $message;
 			return true;
+		}
+
+		if ( ! $type ) {
+			$type = E_USER_WARNING;
 		}
 
 		return trigger_error( $message, $type );
