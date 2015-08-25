@@ -2,7 +2,7 @@
 Contributors: Corphi
 Tags: themes
 Requires at least: 4.0
-Tested up to: 4.2.2
+Tested up to: 4.3
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -23,6 +23,9 @@ This plugins makes all corporate design themes of the BdP e.V. available to your
 
 
 == Changelog ==
+
+= 0.2 =
+* Users of PHP versions below 5.3 should now get reasonable error messages.
 
 = 0.1 =
 * Initial release.

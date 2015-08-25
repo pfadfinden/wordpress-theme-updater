@@ -3,7 +3,7 @@
  * Plugin Name: Pfadfinden Theme Updater
  * Plugin URI: http://lab.hanseaten-bremen.de/themes/
  * Description: Adds the Pfadfinden theme repository to your choice of themes. Requires an API key.
- * Version: 0.1
+ * Version: 0.2
  * Author: Philipp Cordes
  * Text Domain: pfadfinden-theme-updater
  * Domain Path: /languages/
@@ -15,8 +15,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 
-// Load localized strings.
-load_plugin_textdomain( 'pfadfinden-theme-updater', false, basename( __DIR__ ) . '/languages' );
+/**
+ * Load localized strings for the plugin.
+ * 
+ * @see http://geertdedeckere.be/article/loading-wordpress-language-files-the-right-way
+ */
+function pfadfinden_theme_updater_load_textdomain()
+{
+	remove_action( 'init', __FUNCTION__ );
+
+	$domain = 'pfadfinden-theme-updater';
+	// Filter known from load_plugin_textdomain().
+	$locale = apply_filters( 'plugin_locale', get_locale(), $domain );
+
+	load_textdomain( $domain, WP_LANG_DIR . "/pfadfinden-theme-updater/$domain-$locale.mo" );
+	load_plugin_textdomain( $domain, false, basename( __DIR__ ) . '/languages/' );
+}
+add_action( 'init', 'pfadfinden_theme_updater_load_textdomain' );
 
 
 if ( ! function_exists( 'trigger_pfadfinden_plugin_error' ) ) {
@@ -47,20 +62,45 @@ if ( ! function_exists( 'trigger_pfadfinden_plugin_error' ) ) {
 
 // Check for suitable environment
 if ( defined( 'PHP_VERSION_ID' ) && PHP_VERSION_ID >= 50400 ) {
+	// If we’re the first user of the library, use the bundled one
 	if ( ! class_exists( 'Shy\WordPress\Plugin' ) ) {
-		// If the required classes aren’t already used by another Plugin, register the autoloader
-		require_once __DIR__ . '/use/shy-wordpress/src/autoloader.php';
+		pfadfinden_theme_updater_load_textdomain();
+		if ( ! include_once __DIR__ . '/use/shy-wordpress/src/autoloader.php' ) {
+			trigger_pfadfinden_plugin_error(
+				__( 'Couldn’t load required library “shy-wordpress”. Reinstalling the plugin may solve this problem.', 'pfadfinden-theme-updater' ),
+				E_USER_ERROR
+			);
+			return;
+		}
 	}
 
 	// Register our autoloader
-	require_once __DIR__ . '/src/autoloader.php';
+	if ( ! include_once __DIR__ . '/src/autoloader.php' ) {
+		pfadfinden_theme_updater_load_textdomain();
+		trigger_pfadfinden_plugin_error(
+			__( 'The plugin is incomplete. Reinstalling it may solve this problem.', 'pfadfinden-theme-updater' ),
+			E_USER_ERROR
+		);
+		return;
+	}
 
-	return new \Pfadfinden\WordPress\ThemeUpdaterPlugin();
+	// PHP < 5.3 issues a parse error if we instance the class here
+	return require_once __DIR__ . '/startup.php';
 }
 
 
 // Display error message
+pfadfinden_theme_updater_load_textdomain();
 trigger_pfadfinden_plugin_error(
-	__( 'You need at least PHP 5.4 to use Pfadfinden Theme Updater.', 'pfadfinden-theme-updater' ),
+	sprintf(
+		__( 'You need at least PHP 5.4 to use Pfadfinden Theme Updater. Your are using %s.', 'pfadfinden-theme-updater' ),
+		PHP_VERSION
+	),
 	E_USER_ERROR
 );
+
+if ( false ) {
+	// Dummy calls for translation to include metadata in translation files
+	__( 'Pfadfinden Theme Updater', 'pfadfinden-theme-updater' );
+	__( 'Adds the Pfadfinden theme repository to your choice of themes. Requires an API key.', 'pfadfinden-theme-updater' );
+}
