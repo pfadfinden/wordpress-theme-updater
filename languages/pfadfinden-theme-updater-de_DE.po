@@ -1,0 +1,97 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: pfadfinden-theme-updater\n"
+"POT-Creation-Date: 2015-08-26 01:49+0100\n"
+"PO-Revision-Date: 2015-08-26 02:02+0100\n"
+"Last-Translator: Philipp Cordes <philipp.cordes@pfadfinden.de>\n"
+"Language-Team: \n"
+"Language: de_DE\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.6.10\n"
+"X-Poedit-Basepath: ..\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_x;esc_html_e;esc_html__;esc_attr_e;esc_attr__;_ex:1,2c;_nx:4c,1,2;_nx_noop:4c,1,2;_x:1,2c;_n:1,2;_n_noop:1,2;__ngettext_noop:1,2;_c,_nc:4c,1,2;\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: pfadfinden-theme-updater.php:70
+msgid ""
+"Couldn’t load required library “shy-wordpress”. Reinstalling the plugin may "
+"solve this problem."
+msgstr ""
+"Konnte die erforderliche Bibliothek „shy-wordpress“ nicht laden. "
+"Neuinstallation des Plugins sollte das Problem beheben."
+
+#: pfadfinden-theme-updater.php:81
+msgid "The plugin is incomplete. Reinstalling it may solve this problem."
+msgstr ""
+"Das Plugin ist unvollständig. Neuinstallation sollte das Problem beheben."
+
+#: pfadfinden-theme-updater.php:96
+#, php-format
+msgid ""
+"You need at least PHP 5.4 to use Pfadfinden Theme Updater. Your are using %s."
+msgstr ""
+"Du brauchst mindestens PHP 5.4, um den Pfadfinden-Theme-Updater zu benutzen. "
+"Aktuell benutzt du PHP %s."
+
+#: pfadfinden-theme-updater.php:104
+msgid "Pfadfinden Theme Updater"
+msgstr "Pfadfinden-Theme-Updater"
+
+#: pfadfinden-theme-updater.php:105
+msgid ""
+"Adds the Pfadfinden theme repository to your choice of themes. Requires an "
+"API key."
+msgstr ""
+"Fügt den Pfadfinden-Theme-Katalog zu Deiner Auswahl an Themes hinzu. "
+"Benötigt einen API-Schlüssel."
+
+#: src/Pfadfinden/WordPress/ThemeRepository.php:81
+msgid "Your theme repository query is too long."
+msgstr "Deine Anfrage an den Theme-Katalog ist zu lang."
+
+#: src/Pfadfinden/WordPress/ThemeRepository.php:114
+msgid "Unknown theme repository server error, no message attached."
+msgstr ""
+"Unbekannter Theme-Katalog-Serverfehler, keine Fehlerbeschreibung "
+"mitgeschickt."
+
+#: src/Pfadfinden/WordPress/ThemeRepository.php:186
+msgid "Ambiguous result for single theme information call."
+msgstr "Mehrere Ergebnisse für Abfrage nach Informationen zu einem Theme."
+
+#: src/Pfadfinden/WordPress/ThemeUpdaterSettings.php:69
+msgid "Pfadfinden Theme Updater Settings"
+msgstr "Pfadfinden-Theme-Updater-Einstellungen"
+
+#: src/Pfadfinden/WordPress/ThemeUpdaterSettings.php:74
+msgid "Pfadfinden Updater"
+msgstr "Pfadfinden-Updater"
+
+#: src/Pfadfinden/WordPress/ThemeUpdaterSettings.php:84
+msgid "API Key"
+msgstr "API-Schlüssel"
+
+#: src/Pfadfinden/WordPress/ThemeUpdaterSettings.php:89
+#: src/Pfadfinden/WordPress/ThemeUpdaterSettings.php:116
+msgid "An API key consists of 10 alphanumeric characters."
+msgstr "Ein API-Schlüssel besteht aus zehn alphanumerischen Zeichen."
+
+#: src/Pfadfinden/WordPress/ThemeUpdaterSettings.php:96
+msgid "Keep Settings"
+msgstr "Einstellungen merken"
+
+#: src/Pfadfinden/WordPress/ThemeUpdaterSettings.php:97
+msgid "Don’t delete settings when uninstalling the plugin."
+msgstr "Einstellungen nicht löschen, wenn das Plugin deinstalliert wird."
+
+#: src/Pfadfinden/WordPress/ThemeUpdaterSettings.php:107
+msgid "Just testing? Try APITESTKEY."
+msgstr ""
+"Nur Ausprobieren? Nimm APITESTKEY. Aber BdP-Themes gibt es damit nicht…"
+
+#~ msgid "Activated Features"
+#~ msgstr "Aktivierte Funktionen"
