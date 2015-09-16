@@ -1,0 +1,3 @@
+[submodule "use/shy-wordpress"]
+	path = use/shy-wordpress
+	url = https://github.com/corphi/shy-wordpress.git

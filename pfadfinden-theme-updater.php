@@ -1,14 +1,14 @@
 <?php
-/**
- * Plugin Name: Pfadfinden Theme Updater
- * Plugin URI: http://lab.hanseaten-bremen.de/themes/
- * Description: Adds the Pfadfinden theme repository to your choice of themes. Requires an API key.
- * Version: 0.2
- * Author: Philipp Cordes
- * Text Domain: pfadfinden-theme-updater
- * Domain Path: /languages/
- * License: GPLv2 or later
- */
+/*
+Plugin Name: Pfadfinden Theme Updater
+Plugin URI: http://lab.hanseaten-bremen.de/themes/
+Description: Adds the Pfadfinden theme repository to your choice of themes. Requires an API key.
+Version: 0.2
+Author: Philipp Cordes
+Text Domain: pfadfinden-theme-updater
+Domain Path: /languages/
+License: GPLv2 or later
+*/
 
 if ( ! defined( 'ABSPATH' ) ) {
 	die( 'I’m a plugin.' );
